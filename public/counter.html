@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#33503f" />
+  <meta name="robots" content="noindex" />
+  <title>Meltado · Counter</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { background: #e9efdb; min-height: 100vh; }
+    .bar {
+      position: sticky; top: 0; z-index: 20; background: var(--green); color: var(--cream);
+      display: flex; align-items: center; gap: 14px; padding: 10px 16px; flex-wrap: wrap;
+    }
+    .bar .wordmark { font-size: 20px; }
+    .bar .sp { flex: 1; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; background: rgba(246,251,230,.12); padding: 6px 10px; border-radius: 999px; white-space: nowrap; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #9aa; }
+    .dot.ok { background: #6fdc8c; box-shadow: 0 0 0 3px rgba(111,220,140,.25); }
+    .dot.bad { background: #ff6b5e; animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: .3; } }
+    .bar button.chip { border: 0; color: inherit; }
+    .bar button.chip.off { background: #ff6b5e; color: #fff; }
+    .clock { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+    .tabs { display: none; gap: 6px; padding: 10px 12px 0; overflow-x: auto; }
+    .tabs button { border: 0; padding: 9px 14px; border-radius: 10px 10px 0 0; background: #d5dfc2; font-weight: 700; white-space: nowrap; }
+    .tabs button.on { background: var(--cream); }
+    .board { display: grid; grid-template-columns: repeat(4, minmax(270px, 1fr)); gap: 14px; padding: 14px; align-items: start; }
+    .col { background: var(--cream); border-radius: 16px; padding: 12px; min-height: 60vh; }
+    .col h3 {
+      margin: 2px 4px 12px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .col h3 .n { background: var(--green); color: var(--cream); border-radius: 999px; padding: 2px 10px; font-size: 13px; letter-spacing: 0; }
+    .col[data-col="new"] h3 .n { background: var(--orange); }
+    .empty { color: var(--muted); text-align: center; font-size: 13px; padding: 30px 8px; }
+    @media (max-width: 1150px) {
+      .tabs { display: flex; }
+      .board { grid-template-columns: 1fr; padding-top: 0; }
+      .col { display: none; border-top-left-radius: 0; }
+      .col.on { display: block; }
+      .col h3 { display: none; }
+    }
+
+    .card { background: #fff; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(34,54,43,.08); border-left: 6px solid var(--green); }
+    .card.s-new { border-left-color: var(--orange); }
+    .card.s-new.fresh { animation: flash 1s ease-in-out 4; }
+    @keyframes flash { 50% { background: #ffe7d6; } }
+    .card.late { box-shadow: 0 0 0 2px var(--amber); }
+    .card.very-late { box-shadow: 0 0 0 3px var(--red); }
+    .c-head { display: flex; align-items: center; gap: 8px; }
+    .c-no { font-family: var(--display); font-size: 26px; font-weight: 800; }
+    .c-age { margin-left: auto; font-size: 13px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .card.late .c-age { color: var(--amber); }
+    .card.very-late .c-age { color: var(--red); }
+    .badge { font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: var(--cream-2); }
+    .badge.ok { background: #dff3e4; color: #1d6b34; }
+    .badge.warn { background: #fff3cd; color: #6b4f00; }
+    .car { display: flex; gap: 10px; align-items: center; margin: 10px 0 8px; padding: 10px; background: var(--cream-2); border-radius: 10px; }
+    .plate { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 24px; font-weight: 800; letter-spacing: .12em; background: #fff; border: 2px solid var(--green-ink); border-radius: 6px; padding: 2px 8px; }
+    .car-desc { font-weight: 700; line-height: 1.25; }
+    .meta { font-size: 14px; line-height: 1.6; }
+    .meta a { color: var(--blue); font-weight: 700; }
+    .items { list-style: none; padding: 10px 0; margin: 8px 0; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line); }
+    .items li { padding: 4px 0; font-size: 15px; }
+    .items .q { display: inline-block; min-width: 34px; font-weight: 900; font-size: 17px; }
+    .items .o { display: block; margin-left: 34px; font-size: 13px; color: var(--orange-2); font-weight: 600; }
+    .note { background: #fff3cd; color: #5c4400; padding: 8px 10px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .c-foot { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .c-foot .btn { flex: 1; white-space: nowrap; padding: 12px 14px; font-size: 15px; }
+    .icon-btn { border: 1.5px solid var(--line); background: #fff; border-radius: 10px; height: 40px; padding: 0 12px; font-size: 13px; font-weight: 700; color: var(--green-ink); }
+    .icon-btn.danger { color: var(--red); }
+    .meta .lbl { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-right: 4px; }
+    .total { font-size: 13px; color: var(--muted); }
+    .waiting, .received { flex: 1; font-size: 13px; font-weight: 700; padding: 10px 12px; border-radius: 10px; background: var(--cream-2); }
+    .waiting.late-confirm { background: #fff3cd; color: #6b4f00; }
+    .received { background: #dff3e4; color: #1d6b34; }
+    .card.s-delivered { border-left-color: #4caf6a; opacity: .92; }
+
+    .login { max-width: 380px; margin: 10vh auto; background: var(--paper); padding: 28px; border-radius: 20px; box-shadow: var(--shadow); }
+    .login h1 { margin: 0 0 4px; }
+    .start {
+      position: fixed; inset: 0; z-index: 60; background: rgba(20,32,25,.85); color: var(--cream);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px;
+    }
+    .start h2 { font-size: 28px; margin: 0 0 8px; }
+    .start p { opacity: .85; max-width: 440px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div id="demoBanner" class="banner-demo hidden">Demo mode — this dashboard shows orders placed from <a href="index.html" target="_blank">the customer page</a> in this same browser.</div>
+
+  <!-- Login -->
+  <section id="login" class="login hidden">
+    <div class="wordmark" style="color:var(--green);font-size:22px">Meltado</div>
+    <h1>Counter login</h1>
+    <p class="sub" id="loginSub" style="color:var(--muted)">Staff only.</p>
+    <form id="loginForm">
+      <label class="field" id="emailField"><span>Email</span><input id="email" type="email" autocomplete="username" required></label>
+      <label class="field" id="pwField"><span>Password</span><input id="pw" type="password" autocomplete="current-password" required></label>
+      <button class="btn block" id="loginBtn">Log in</button>
+    </form>
+  </section>
+
+  <!-- Dashboard -->
+  <section id="dash" class="hidden">
+    <div class="bar">
+      <div class="wordmark">Meltado · Counter</div>
+      <span class="chip"><span id="connDot" class="dot"></span><span id="connText">Connecting…</span></span>
+      <span class="chip" id="wakeChip" title="Keeps the screen on"><span id="wakeText">Screen lock: off</span></span>
+      <div class="sp"></div>
+      <button class="chip" id="acceptBtn">Accepting orders</button>
+      <button class="chip" id="soundBtn">Sound on</button>
+      <button class="chip hidden" id="clearDemo">Clear demo orders</button>
+      <span class="chip clock" id="clock">--:--</span>
+      <button class="chip" id="logoutBtn">Log out</button>
+    </div>
+    <nav class="tabs" id="tabs"></nav>
+    <div class="board" id="board"></div>
+  </section>
+
+  <div id="start" class="start hidden">
+    <h2>Start shift</h2>
+    <p>Tap to switch on order alerts and keep this screen awake. Keep this tab open and the device plugged in.</p>
+    <button class="btn orange" id="startBtn" style="margin-top:14px">▶ Start receiving orders</button>
+  </div>
+
+  <div id="modalRoot"></div>
+
+  <script src="config.js"></script>
+  <script src="backend.js"></script>
+  <script src="counter.js"></script>
+</body>
+</html>

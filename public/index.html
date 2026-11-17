@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#33503f" />
+  <title>Meltado Drive-In · Order to your car</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .top {
+      background: var(--green); color: var(--cream); padding: calc(18px + env(safe-area-inset-top)) 18px 6px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .top .wordmark { font-size: 24px; }
+    .top small { display: block; font-size: 11px; letter-spacing: .25em; opacity: .8; text-transform: uppercase; margin-top: 2px; }
+    .loc-pill {
+      font-size: 12px; background: rgba(246,251,230,.14); padding: 6px 10px; border-radius: 999px; white-space: nowrap;
+    }
+    main { max-width: 720px; margin: 0 auto; }
+
+    /* menu */
+    :root { --tabs-h: 50px; }
+    /* Tabs live in the green header band: plain text + underline */
+    .view-tabs {
+      position: sticky; top: 0; z-index: 12; background: var(--green); height: var(--tabs-h);
+      padding: 0 18px; box-shadow: 0 1px 0 rgba(0,0,0,.06);
+    }
+    .view-tabs .seg { display: flex; gap: 28px; height: 100%; max-width: 692px; margin: 0 auto; }
+    .view-tabs button {
+      position: relative; border: 0; background: none; padding: 0 2px; height: 100%;
+      color: rgba(246,251,230,.62); font-size: 15px; font-weight: 600; letter-spacing: .01em;
+      display: flex; align-items: center; gap: 7px; transition: color .15s;
+    }
+    .view-tabs button.on { color: var(--cream); font-weight: 700; }
+    .view-tabs button::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; border-radius: 3px 3px 0 0;
+      background: var(--orange); transform: scaleX(0); transition: transform .2s ease-out;
+    }
+    .view-tabs button.on::after { transform: scaleX(1); }
+    .view-tabs .count { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--orange); color: #fff; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+    .view-tabs .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
+    .orders-empty { text-align: center; padding: 50px 20px; color: var(--muted); line-height: 1.5; }
+    .orders-empty h3 { color: var(--green-ink); margin: 0 0 6px; font-size: 18px; }
+    .menu-head { position: sticky; top: var(--tabs-h); z-index: 10; background: var(--cream); border-bottom: 1px solid rgba(51,80,63,.08); }
+    .search { position: relative; padding: 14px 16px 4px; }
+    .search svg.mag { position: absolute; left: 29px; top: 50%; margin-top: 5px; transform: translateY(-50%); color: #93a196; pointer-events: none; }
+    .search input {
+      width: 100%; height: 44px; border: 1px solid rgba(51,80,63,.10); background: #fff; border-radius: 12px;
+      padding: 0 44px 0 40px; font-size: 15.5px; outline: none; -webkit-appearance: none; appearance: none;
+      box-shadow: 0 1px 2px rgba(34,54,43,.04);
+    }
+    .search input::placeholder { color: #9aa79d; }
+    .search input:focus { border-color: rgba(51,80,63,.35); box-shadow: 0 0 0 3px rgba(51,80,63,.08); }
+    .search input::-webkit-search-cancel-button { display: none; }
+    .search .clear {
+      position: absolute; right: 24px; top: 50%; margin-top: 5px; transform: translateY(-50%);
+      width: 28px; height: 28px; border: 0; border-radius: 50%; background: var(--cream-2); color: var(--green-ink);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cats { display: flex; gap: 6px; overflow-x: auto; padding: 10px 16px 12px; scrollbar-width: none; scroll-padding: 0 16px; }
+    .search-info { padding: 10px 16px 0; font-size: 13px; color: var(--muted); }
+    .no-results { text-align: center; color: var(--muted); padding: 40px 20px; line-height: 1.5; }
+    .cats::-webkit-scrollbar { display: none; }
+    .cats button {
+      flex: 0 0 auto; border: 0; background: transparent; color: #5d6e62;
+      padding: 7px 12px; border-radius: 8px; font-size: 13.5px; font-weight: 600; white-space: nowrap;
+      transition: background .15s, color .15s;
+    }
+    .cats button.on { background: rgba(51,80,63,.10); color: var(--green-ink); font-weight: 700; }
+    .cat { padding: 18px 16px 4px; scroll-margin-top: 170px; }
+    .cat-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2px solid var(--green); padding-bottom: 6px; margin-bottom: 4px; }
+    .cat-head h2 { margin: 0; font-family: var(--display); font-size: 20px; letter-spacing: .14em; text-transform: uppercase; }
+    .cat-note { color: var(--orange); font-style: italic; font-size: 13px; font-weight: 600; margin: 6px 0 2px; }
+    .item {
+      display: flex; gap: 12px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line);
+    }
+    .item .info { flex: 1; min-width: 0; }
+    .item .name { font-weight: 700; font-size: 15.5px; }
+    .item .desc { color: var(--muted); font-size: 13px; font-style: italic; margin-top: 3px; line-height: 1.35; }
+    .item .price { font-weight: 800; margin-top: 4px; font-size: 14px; }
+    .item .tag { color: var(--orange); font-size: 11.5px; font-weight: 700; margin-left: 6px; }
+    .item .incart { font-size: 12px; color: var(--green-2); font-weight: 700; margin-top: 3px; }
+    .add-btn {
+      border: 1.5px solid var(--green); background: #fff; color: var(--green); border-radius: 999px;
+      padding: 8px 18px; font-weight: 800; font-size: 14px; min-width: 84px; min-height: 38px;
+    }
+    .menu-end { text-align: center; color: var(--muted); font-size: 13px; padding: 26px 16px 120px; }
+
+    .cartbar {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, var(--cream) 70%, rgba(246,251,230,0));
+    }
+    .cartbar .btn { width: 100%; max-width: 692px; margin: 0 auto; display: flex; justify-content: space-between; box-shadow: var(--shadow); }
+
+    /* option sheet */
+    .opt-group { margin: 16px 0; }
+    .opt-group h4 { margin: 0 0 8px; font-size: 14px; display: flex; justify-content: space-between; }
+    .opt-group h4 em { font-style: normal; font-size: 11px; color: var(--orange); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .opt {
+      display: flex; align-items: center; gap: 10px; padding: 11px 12px; border: 1.5px solid var(--line);
+      border-radius: 12px; margin-bottom: 6px; background: #fff; cursor: pointer;
+    }
+    .opt input { width: 18px; height: 18px; accent-color: var(--green); }
+    .opt span { flex: 1; }
+    .opt b { font-size: 13px; color: var(--muted); }
+    .sheet-foot { display: flex; gap: 12px; align-items: center; margin-top: 18px; }
+    .sheet-foot .btn { flex: 1; }
+
+    /* cart */
+    .line { display: flex; gap: 10px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .line .info { flex: 1; min-width: 0; }
+    .line .opts { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+    .line .lp { font-weight: 800; min-width: 62px; text-align: right; }
+    .stepper.light { background: var(--cream-2); color: var(--green-ink); }
+    .stepper.light button { width: 34px; height: 34px; }
+    .total-row { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; padding: 14px 0 4px; }
+    .pay-note { font-size: 12.5px; color: var(--muted); margin: 0 0 18px; }
+    .section-title { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; font-weight: 800; margin: 22px 0 10px; color: var(--green); }
+    .loc-note { font-size: 13px; color: var(--muted); line-height: 1.45; margin: 4px 0 12px; }
+    .loc-box { padding: 12px 14px; border-radius: 12px; font-size: 14px; line-height: 1.5; margin-bottom: 14px; }
+    .loc-box.info { background: var(--cream-2); }
+    .loc-box.warn { background: #fff3cd; color: #6b4f00; }
+    .loc-box.bad { background: #fde8e6; color: var(--red); }
+    .loc-box ol { padding-left: 18px; margin: 8px 0 0; }
+    .loc-box .btn.link { display: block; padding: 8px 0 0; }
+    .closed-banner { background: #fde8e6; color: var(--red); text-align: center; padding: 10px 14px; font-size: 14px; font-weight: 600; }
+
+    /* confirm */
+    .confirm-list { list-style: none; padding: 0; margin: 0 0 6px; }
+    .confirm-list li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dashed var(--line); }
+    .confirm-list .q { font-weight: 800; margin-right: 6px; }
+    .confirm-list small { display: block; color: var(--muted); }
+    .kv { display: grid; grid-template-columns: 110px 1fr; gap: 6px 10px; font-size: 14px; background: var(--cream-2); padding: 12px 14px; border-radius: 12px; margin: 12px 0; }
+    .kv dt { color: var(--muted); }
+    .kv dd { margin: 0; font-weight: 600; word-break: break-word; }
+
+    /* success + tracking */
+    .sent { text-align: center; padding: 10px 6px; }
+    .sent .tick {
+      width: 74px; height: 74px; border-radius: 50%; background: var(--green); color: var(--cream);
+      display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 14px; animation: pop .35s ease-out;
+    }
+    @keyframes pop { 0% { transform: scale(.3); } 70% { transform: scale(1.1); } }
+    .sent h2 { font-size: 26px; }
+    .ordno { font-family: var(--display); font-size: 40px; font-weight: 800; letter-spacing: .06em; margin: 6px 0; }
+    /* your orders (stacked, one card per order) */
+    .my-orders { padding: 16px 14px 6px; }
+    .mo-head { display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 10px; }
+    .mo-head h2 { margin: 0; font-family: var(--display); font-size: 18px; letter-spacing: .14em; text-transform: uppercase; }
+    .mo-head a { font-size: 13px; font-weight: 700; color: var(--green); }
+    .ocard { background: var(--paper); border-radius: 16px; padding: 14px 16px; box-shadow: 0 3px 14px rgba(34,54,43,.10); margin-bottom: 10px; border-left: 5px solid var(--green); }
+    .ocard.s-out_for_delivery { border-left-color: var(--orange); }
+    .ocard.s-delivered { border-left-color: #4caf6a; }
+    .ocard.s-cancelled { border-left-color: var(--red); }
+    .ohead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .ohead b { font-family: var(--display); font-size: 20px; letter-spacing: .04em; }
+    .ostatus { font-size: 13px; font-weight: 800; color: var(--green); }
+    .s-out_for_delivery .ostatus { color: var(--orange-2); }
+    .s-cancelled .ostatus { color: var(--red); }
+    .oitems { font-size: 14px; margin: 6px 0 10px; line-height: 1.4; }
+    .obar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+    .obar i { height: 5px; border-radius: 3px; background: var(--line); }
+    .obar i.done { background: var(--green); }
+    .obar i.cur { background: var(--orange); }
+    .s-delivered .obar i { background: #4caf6a; }
+    .s-cancelled .obar i { background: #f0c4c0; }
+    .ohint { font-size: 13px; color: var(--muted); margin-top: 8px; }
+    .ometa { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+    .ometa button { border: 0; background: none; color: var(--green); font-weight: 700; font-size: 13px; padding: 4px 0; text-decoration: underline; }
+    .ocard .btn { margin-top: 12px; }
+    .orders-btn { border: 0; background: var(--orange); color: #fff; font-weight: 800; font-size: 12.5px; padding: 7px 12px; border-radius: 999px; white-space: nowrap; }
+    .top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  </style>
+</head>
+<body>
+  <div id="demoBanner" class="banner-demo hidden">Demo mode — orders stay in this browser. Open <a href="counter.html" target="_blank">counter.html</a> in another tab to see them arrive.</div>
+
+  <header class="top">
+    <div>
+      <div class="wordmark">Meltado</div>
+      <small>Drive-in · order to your car</small>
+    </div>
+    <div id="locPill" class="loc-pill hidden"></div>
+  </header>
+
+  <nav class="view-tabs" aria-label="Sections">
+    <div class="seg" role="tablist">
+      <button id="tabMenu" role="tab" aria-selected="true" aria-controls="menu" class="on" data-view="menu">Menu</button>
+      <button id="tabOrders" role="tab" aria-selected="false" aria-controls="myOrders" data-view="orders">Your orders <span id="ordersCount" class="count hidden"></span><span id="ordersDot" class="dot hidden" aria-hidden="true"></span></button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Menu (first screen) -->
+    <div id="closedBanner" class="closed-banner hidden">We're not taking drive-in orders right now. You can still browse the menu.</div>
+    <section id="myOrders" class="my-orders hidden" role="tabpanel" aria-live="polite"></section>
+    <section id="menu" role="tabpanel">
+      <div class="menu-head">
+        <div class="search" role="search">
+          <svg class="mag" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <label for="searchInput" class="sr-only">Search the menu</label>
+          <input id="searchInput" type="search" placeholder="Search the menu, e.g. creme, panini" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
+          <button id="searchClear" class="clear hidden" type="button" aria-label="Clear search"><svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        </div>
+        <nav id="cats" class="cats" aria-label="Menu categories"></nav>
+      </div>
+      <div id="searchInfo" class="search-info hidden" aria-live="polite"></div>
+      <div id="menuList"></div>
+      <div id="noResults" class="no-results hidden"></div>
+      <div class="menu-end">Prices are menu estimates in ₹. Your final bill comes printed with your order.<br>Pay by UPI to the waiter at your car.</div>
+    </section>
+
+  </main>
+
+  <div id="cartbar" class="cartbar hidden">
+    <button id="cartBtn" class="btn orange"><span id="cartCount">0 items</span><span>View cart · <b id="cartTotal">₹0</b></span></button>
+  </div>
+
+  <div id="modalRoot"></div>
+
+  <script src="config.js"></script>
+  <script src="menu.js"></script>
+  <script src="backend.js"></script>
+  <script src="customer.js"></script>
+</body>
+</html>

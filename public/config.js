@@ -10,8 +10,8 @@ window.APP_CONFIG = {
   CAFE_NAME: "Meltado",
   CAFE_PHONE: "",            // e.g. "+919876543210" — shown as a "Call cafe" button
 
-  SUPABASE_URL: "",          // e.g. "https://abcdxyz.supabase.co"
-  SUPABASE_ANON_KEY: "",     // Supabase > Project Settings > API > anon public key
+  SUPABASE_URL: "https://kvgjmcbwhlmytfedbjlc.supabase.co",          // e.g. "https://abcdxyz.supabase.co"
+  SUPABASE_ANON_KEY: "sb_publishable_2prJc_afSkoKkfPM4fNY1g_22Fhfb83",     // Supabase > Project Settings > API > anon public key
 
   // DEMO MODE ONLY. In live mode these come from the app_settings table in Supabase.
   CAFE_LAT: 28.6542,         // approximate — confirm with an exact Google Maps pin before launch
